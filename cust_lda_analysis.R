@@ -1,14 +1,15 @@
 rm(list=ls()) 
 gc()
 getwd()
+#memory size 
 memory.limit(size=300000)
 
-#install.packages('reshape2')
+
 
 getwd()
 #setwd("C:/Users/gonybella/Desktop/프로젝트 공유/Git Repository/rfm")
 #setwd("C:/Users/USER/Desktop/고웁/2018-2/빅데이터 프로젝트/github_share/rfm")
-setwd("D:/프로젝트 공유/Git Repository/rfm")
+setwd("D:/sales_anaysis/Sales-Analysis-Recommendations")
 
 library(recommenderlab)
 library(readxl)
@@ -22,10 +23,10 @@ library(data.table)
 library(ggplot2)
 library(tidyverse)
 library(data.table)
+library(stringr)
 
 #google drive 첨부.
 load("cust_prod_total_fin.RData")
-
 
 glimpse(cust_prod_total_fin)
 cust_prod_total_fin$cate <- as.factor(cust_prod_total_fin$cate)
@@ -44,12 +45,11 @@ summary(cust_prod_total_fin$cate_line)
 
 cust_lda <- cust_prod_total_fin %>% 
   dplyr::select(custid, cate_ftn) %>%
-  group_by(custid, cate_ftn) %>%
+  dplyr::group_by(custid, cate_ftn) %>%
   dplyr::summarise(buynum = n())
 View(cust_lda)
 
 #custid(고객)를 0 제외한 숫자만으로 추출
-library(stringr)
 cust_lda$custid %>% 
   str_replace_all(c('C0000000' = '',
                     'C000000' = '', 
@@ -78,8 +78,9 @@ cate_ftn <- data.frame(cate = c('Accessory_Bag', 'Accessory_Body', 'Accessory_Fa
                                 'Skin_Eyecream', 'Skin_Lipcare', 'Skin_Men', 'Skin_Mist', 'Skin_Moisturize', 
                                 'Skin_Oil', 'Skin_Scrub&Mask', 'Skin_Set', 'Skin_SPF', 'Skin_Toner', 
                                 'Skin_Travelkit'))
-cate_ftn
-cust_lda$cate_ftn <- as.character(cust_lda$cate_ftn) # 팩터는 숫자로 변경이 안됨
+
+# 팩터는 숫자로 변경이 안됨
+cust_lda$cate_ftn <- as.character(cust_lda$cate_ftn) 
 
 cust_lda$cate_ftn[cust_lda$cate_ftn == 'Accessory_Bag'] <- 1
 cust_lda$cate_ftn[cust_lda$cate_ftn == 'Accessory_Body'] <- 2
@@ -134,9 +135,9 @@ cust_lda$cate_ftn[cust_lda$cate_ftn == 'Skin_Toner'] <- 50
 cust_lda$cate_ftn[cust_lda$cate_ftn == 'Skin_Travelkit'] <- 51
 
 cust_lda$cate_ftn <- as.integer(cust_lda$cate_ftn)
-range(cust_lda$cate_ftn)
+#range(cust_lda$cate_ftn)
 summary(cust_lda$cate_ftn)
-View(cust_lda)  
+#View(cust_lda)  
 glimpse(cust_lda)
 
 # write.csv(cust_lda, 'shopping.csv')
@@ -150,7 +151,7 @@ glimpse(cust_lda)
 
 cust_lda <- cust_prod_total_fin %>% 
   dplyr::select(custid, cate_ftn) %>%
-  group_by(custid, cate_ftn) %>%
+  dplyr::group_by(custid, cate_ftn) %>%
   dplyr::summarise(buynum = n())
 
 # cate_ftn과 custid 를 vector를 이용해서 값 변경
@@ -237,8 +238,10 @@ View(shopping.dat)
 # write.table(shopping.dat, 'shopping.dat', 
 #            quote = FALSE, col.names=FALSE, row.names = FALSE)
 
+#lda package 설치.
 # install.packages('lda')
 library(lda)
+
 
 shop2 <- read.documents('shopping.dat')
 item_name <- read.vocab('item.txt')   # 사전에 엑셀로 제작 
@@ -263,7 +266,7 @@ system.time(lda <- lda.collapsed.gibbs.sampler(documents = shop2,
 # 739.99    0.81  742.38 # 9
 #1201.05    1.66 1204.00 # 8
 #1074.50    1.19 1077.17 # 7
-save(lda, file="lda5.RData")
+save(lda, file="lda_num5.RData")
 load('lda5.RData')
 glimpse(lda)
 ## 로그 우도 그래프 
@@ -338,7 +341,7 @@ theme_set(theme_bw())
 #colnames(theta) <-  char_name
 idx <- c(1, 2, 3)
 theta.df <- melt(cbind(data.frame(theta[idx, ]),
-                      client = factor(idx)), varible.name = 'topic', id.vars = 'client')
+                       client = factor(idx)), varible.name = 'topic', id.vars = 'client')
 
 
 theta.df
