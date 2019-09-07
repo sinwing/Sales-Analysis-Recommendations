@@ -14,11 +14,11 @@ library(reshape2)
 library(data.table)
 library(ggplot2)
 
+setwd("D:/sales_anaysis/Sales-Analysis-Recommendations")
 
 
 gc()
 memory.limit(size=300000)
-
 rm(list = ls())
 
 #추천 모델 평가 개선
@@ -26,28 +26,33 @@ rm(list = ls())
 #1514732400 == 2018-01-01
 
 
-#userRFM <- read.csv("data/userRFM_full.csv")
-##userRFM_uniq <- read.csv("data/userRFM_full_uniq.csv")
-
 #head(userRFM)
 #head(userRFM_uniq)
 
-#회원구매 기본정보 호출
-load('cust_prod_total.RData')
-load("userRFM.RData")
+#회원구매 기본정보 호출, cust_prod_total_fix_2
+#load('cust_prod_total.RData')
+#head(cust_prod_total_fix_2)
+#save(cust_prod_total_fin, file = 'cust_prod_total_fin.RData')
 load('cust_prod_total_fin.RData')
-#load("userRFM_f.RData")
+head(cust_prod_total_fin)
+
+
+
+#회원rfm 정보.
+load("userRFM.RData")
+head(userRFM)
+
 
 ## custid 매핑을 위한 key 테이블 호출 
-userRFM_custid_key <- read.csv("data/userRFM_custid_key.csv")
+#userRFM_custid_key <- read.csv("userRFM_custid_key.csv")
 
 # join 후 custid 를 변경
-cust_prod_total_fin <- left_join(cust_prod_total_fix_2, 
-                                 userRFM_custid_key, by="custid")
+#cust_prod_total_fin <- left_join(cust_prod_total_fix_2, userRFM_custid_key, by="custid")
 
 
 head(cust_prod_total_fin)
 glimpse(cust_prod_total_fin)
+
 
 #date 를 숫자 타입으로 변경.
 cust_prod_total_fin <- cust_prod_total_fin %>% 
