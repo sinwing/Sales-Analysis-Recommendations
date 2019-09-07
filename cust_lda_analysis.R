@@ -278,12 +278,7 @@ plot <- data.frame(iteration = c(1:iter, 1:iter),
 ggplot(plot, aes(x = iteration, y = loglike, group = type)) +
   geom_line()
 
-# plot1 <- data.frame(iteration = c(1:300, 1:300),
-#                   loglike = c(lda1$log.likelihoods[1,], lda1$log.likelihoods[2,]),
-#                   type = c(rep(1, 300), rep(2, 300)))
-# ggplot(plot1, aes(x = iteration, y = loglike, group = type)) +
-#  geom_line()
-###
+
 str(lda)
 
 ###
@@ -315,7 +310,7 @@ ggplot(data = phi.df, aes(x = item, y = value, fill = item), # qplot 에러 -> g
 
 ################################################
 # 토픽으로 뻔해서
-# 리프트 (김용대 교수) 
+# 리프트 (김용대 교수 첨부된 pdf 논문 참조.) 
 K = 5; W = 51
 p <- colSums(lda$topics) / sum(lda$topics)
 lift <- matrix(0, nrow = K, ncol = W)
@@ -348,10 +343,10 @@ theta.df
 
 #cust id 재추출.
 cust_ftn_list <- cust_prod_total_fin %>% 
-  group_by(custid_no, cate_ftn) %>%
+  group_by(custid, cate_ftn) %>%
   summarise(buynum = n()) ;head(cust_ftn_list,20)
 
-cust_id_list <- sort(unique(cust_ftn_list$custid_no))
+cust_id_list <- sort(unique(cust_ftn_list$custid))
 cust_id_list_length <- length(cust_id_list)
 head(cust_id_list)
 
@@ -363,33 +358,17 @@ setindex(cust_lda_list_dt, custid)
 
 lda_num_list <- data.frame()
 
-#system.time(for (i in 1:10000) {
-#  tmp_class_num = 0;
-#  for (j in 2:6) {
-#    if(cust_lda_list_dt[i,j,with = F] == "Inf"){
-#      tmp_class_num = tmp_class_num + 2^(j-2);
-#    }
-#  }
-#  lda_num_list <- rbind(lda_num_list, data.frame(tmp_class_num))
-#  #현재 진행상태 출력. 1300000 출력이 마지막
-#  if(i %% 10000 == 0){
-#    print(i)
-#  }
-#})
 
+#lda 분석에 따른 고객 분류.
 system.time(for (i in 1:cust_id_list_length) {
   tmp_class_num = 0;
   tmp_cust <- cust_lda_list_dt[i];
-  
   for (j in 2:6) {
-    
-    if(tmp_cust[,j, with = F] == "Inf"){
+    if(tmp_cust[1,j, with = F] == "Inf"){
       tmp_class_num = tmp_class_num + 2^(j-2);
     }
   }
-  
   lda_num_list <- rbind(lda_num_list, data.frame(tmp_class_num))
-  
 })
 
 head(lda_num_list)
@@ -454,12 +433,3 @@ cust_prod_total_fin_lda_sum[21:31,]
 #Inf Inf Inf Inf Inf        31
 
 
-
-#qplot(topic, value, fill=topic, ylab='probability', data=theta.df, geom='bar', stat='identity') +
-# theme(axis.text.x = element_text(angle=90, hjust=1)) +
-# coord_flip() + facet_wrap(~client, ncol=length(idx))
-#ggplot(data = theta.df, aes(x = topic, y = value, fill = topic), # qplot 에러 -> ggplot으로 코드 수정
-#      xlab = 'topic', ylab = 'probability') +
-#geom_bar(stat = 'identity') +
-#theme(axis.text.x = element_text(angle=90, hjust=1), legend.position = 'none') +
-#coord_flip() + facet_wrap( ~ topic, ncol = length(idx))
