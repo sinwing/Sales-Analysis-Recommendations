@@ -62,6 +62,7 @@ distinct(cust_prod_total_fin %>%
            filter(date_num >= 1514732400) %>%
            select(custid_no)) -> sample_custid_after
 
+
 distinct(cust_prod_total_fin %>%
            filter(date_num < 1514732400) %>%
            select(custid_no)) -> sample_custid_before
@@ -84,7 +85,7 @@ colnames(training_test_custid) <- c("custid", "1", "2")
 
 #training, test 에 맞게 melt 데이터 생성
 ##추천 로직에 기준이되는 데이터 추출, RFM 모두 5점.
-royal_custid <- userRFM_uniq %>%
+royal_custid <- userRFM %>%
   filter(F > 4 ) %>%
   filter(M > 4 ) %>%
   filter(R > 4 ) %>%
@@ -93,25 +94,27 @@ royal_custid <- userRFM_uniq %>%
 nrow(royal_custid)
 
 #2018 이전 이후 구매 자 중 로얄 고객 추출.
-training_test_custid_1 <- merge(training_test_custid, royal_custid, by = "custid", all = FALSE)
-nrow(training_test_custid_1)
-head(training_test_custid_1)
+training_test_royal_custid <- merge(training_test_custid, royal_custid, by = "custid", all = FALSE)
+
+#50227
+nrow(training_test_royal_custid)
+head(training_test_royal_custid)
 
 #연산속도 향상을 위하여 data table 변경 후 custid를 인덱스로 변경.
 cust_prod_total_fin_dt <- as.data.table(cust_prod_total_fin)
-training_test_custid_1_dt <- as.data.table(training_test_custid_1)
+training_test_royal_custid_dt <- as.data.table(training_test_royal_custid)
 
 setindex(cust_prod_total_fin_dt, custid_no) 
-setindex(training_test_custid_1_dt, custid) 
+setindex(training_test_royal_custid_dt, custid) 
 
 #known, unknown 데이터 구분, 2018 이전은 known 이후는 unknown
 cust_training_set <- cust_prod_total_fin_dt %>%
   filter(date_num < 1514732400 ) %>%
-  filter(custid_no %in% training_test_custid_1_dt$custid)
+  filter(custid_no %in% training_test_royal_custid_dt$custid)
 
 cust_test_set <- cust_prod_total_fin_dt %>%
   filter(date_num >= 1514732400 ) %>%
-  filter(custid_no %in% training_test_custid_1_dt$custid)
+  filter(custid_no %in% training_test_royal_custid_dt$custid)
 
 nrow(cust_training_set)
 head(cust_training_set)
