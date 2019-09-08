@@ -1,6 +1,6 @@
-######### 코드 결과물 RData 
 
-setwd("C:/Users/Daniel/rfm")
+
+setwd("D:/sales_anaysis/Sales-Analysis-Recommendations")
 getwd()
 
 rm(list=ls()); gc()
@@ -26,6 +26,7 @@ rm(list=ls()); gc()
 library(readxl)
 library(plyr)
 library(tidyverse)
+library(data.table)
 
 
 # # file.exists("data/cust_mon_201804.xlsx")
@@ -92,7 +93,8 @@ library(tidyverse)
 # # 매년 5, 11월 이벤트 진행
 # # 특이사항 :  2018년만 5월 -> 6월로 진행 
 
-load('./data/cust_prod_total_raw.RData'); head(cust_prod_total)
+load('cust_prod_total_raw.RData')
+head(cust_prod_total)
 glimpse(cust_prod_total) # Observations: 6,605,815
 
 # 고객등급명을 영문으로 변경
@@ -116,6 +118,7 @@ class(grade_num)
 
 grade_df <- data.frame(grades = grade, number = grade_num)
 str(grade_df)
+
 # windows()
 ggplot(grade_df, aes(x=grades, y=number)) + 
   geom_bar(stat='identity', fill="steelblue") +
@@ -143,7 +146,7 @@ ggplot(grade_dfc, aes("", share, fill = grades)) +
 ## (간격이 너무 크기때문에 love+ 단계를 더 만들 필요)
 
 
-### 온/오프라인
+### 온/오프라인 구매 구분.
 ###
 cust_prod_total$on_off <- as.factor(cust_prod_total$on_off)
 summary(cust_prod_total$on_off) 
@@ -265,16 +268,6 @@ cust_prod_total$prod_code <- as.character(cust_prod_total$prod_code)
 glimpse(cust_prod_total)
 
 
-# ## 연변수 추가 
-# cust_prod_total$year <- format(cust_prod_total$date, '%Y') 
-# ## 월변수 추가 
-# cust_prod_total$month <- format(cust_prod_total$date, '%m') 
-# ## 일변수 추가 
-# cust_prod_total$day <- format(cust_prod_total$date, '%d') 
-# ## 요일변수 추가 -> 팩터화 
-# cust_prod_total$weekday <- format(cust_prod_total$date, '%a') 
-# cust_prod_total$weekday <- as.factor(cust_prod_total$weekday) 
-
 ##
 ## 날짜 변수 변환 코드 개선
 ##
@@ -373,31 +366,6 @@ cust_prod_total %>%
   group_by(custid) %>%
   summarise(sum_cust_amt = sum(amt)) %>%
   arrange(desc(sum_cust_amt))
-
-
-## 제품 카테고리 변수는 나중에 다시 join해서 사용
-
-#2. 가장 매출이 많은 제품 카테고리는? ->> 새로 개편한 제품 카테고리로 
-# glimpse(cust_prod_total)
-# salesProd_dep <- aggregate(cust_prod_total$amt, 
-#                            by=list(prod_dep=cust_prod_total$prod_dep), FUN=sum)
-# head(salesProd_dep)
-# orderProd_dep <- order(salesProd_dep$x, decreasing=T)
-# head(salesProd_dep[orderProd_dep, ])
-# Moisturize, 7640727198
-
-# 혹은...
-#cust_prod_total %>%
-#  group_by(prod_dep) %>%
-#  summarise(sum_prod_dep_amt = sum(amt)) %>%
-#  arrange(desc(sum_prod_dep_amt)) -> prod_dep_amt_df
-
-#head(prod_dep_amt_df)
-
-#ggplot(prod_dep_amt_df, aes(x=prod_dep, y=sum_prod_dep_amt)) + 
-#  geom_bar(stat='identity', fill='steelblue') +
-#  scale_x_discrete(limits=prod_dep_amt_df$prod_dep) +
-#  theme(axis.text.x = element_text(angle=90, hjust=1))
 
 
 #3. 가장 매출이 많은 요일은?
@@ -546,17 +514,12 @@ glimpse(cust_prod_total_fix_2)
 
 save(cust_prod_total_fix_2, file="cust_prod_total.RData")
 rm(cust_prod_total_fix_2)
-<<<<<<< HEAD
 
-rm(list=ls()); gc()
 load("cust_prod_total.RData")
-=======
-load("cust_prod_total.RData")
-load("cust_prod_total_fin.RData")
->>>>>>> 74e95d7206317d897b1a2e59c1ae9c172870ff1a
+
+
 glimpse(cust_prod_total_fix_2)
 
-glimpse(cust_prod_total_fin)
 
 # Observations: 5,410,838
 # Variables: 20
@@ -575,7 +538,7 @@ userRFM <- cust_prod_total_fix_2 %>%
 
 userRFM
 
-cust_key <- read.csv('./data/userRFM_custid_key.csv')
+cust_key <- read.csv('userRFM_custid_key.csv')
 head(cust_key)
 
 userRFM %>% 
@@ -849,19 +812,14 @@ quantM[5] # M 분위수가 0.8이 되는 액수는 "103,000" 원
 ## RFM별 상위 20%가 차지하는 총 매출액 대비 비중
 
 # recency 상위 
-<<<<<<< HEAD
-# View(head(userRFM, 10))
-# userRFM$monetary
 
-=======
 View(head(userRFM, 10))
 userRFM$monetary
 head(userRFM, 10)
->>>>>>> 74e95d7206317d897b1a2e59c1ae9c172870ff1a
 
 # Recency 상위 20%가 차지하는 총 매출액 대비 비중 ##################################
 ## 의미 : "??(날짜형 변환)" 이후 방문한 고객들의 지출이 총 매출액에 차지하는 비율
-quantR[5] # ??
+quantR[5] 
 # userRFM$monetary[userRFM$maxDate >= quantR[5]]
 sum(userRFM$monetary[userRFM$maxDate >= quantR[5]])
 sum(userRFM$monetary[userRFM$maxDate >= quantR[5]]) / sum(userRFM$monetary) 
@@ -943,7 +901,7 @@ gc()
 
 head(userRFM)
 glimpse(userRFM)
-
+c
 # R/F/M 값 계산
 userRFM$R <- intervalGrade(userRFM, "userRFM", "maxDate", quantR) # 날짜 -> 숫자형 
 userRFM$F <- intervalGrade(userRFM, "userRFM", "frequency", quantF)
@@ -956,16 +914,14 @@ userRFM$M <- intervalGrade(userRFM, "userRFM", "monetary", quantM)
 
 # RFM 지수 = weightR * Recency + weightF * Frequency + weightM * Monetary
 userRFM$score <- (weightR * userRFM$R + weightF * userRFM$F + weightM * userRFM$M)*100/5
-<<<<<<< HEAD
-# hist(userRFM$score)
-=======
+
 hist(userRFM$score)
 
 table(userRFM$R)
 table(userRFM$F)
 table(userRFM$M)
 
->>>>>>> 74e95d7206317d897b1a2e59c1ae9c172870ff1a
+
 glimpse(userRFM)
 # dim(userRFM) # 1,344,345      12
 
@@ -1004,8 +960,6 @@ userRFM$grade <- as.factor(userRFM$grade)
 glimpse(userRFM)
 ### 성별/ 연령/ 제품코드는 이후에 table join으로 반영
 
-<<<<<<< HEAD
-=======
 userRFM$grade <- as.factor(userRFM$grade)
 summary(userRFM$grade)
 #     A      B      C      D      E 
@@ -1020,10 +974,10 @@ summary(userRFM$minDate)
 summary(userRFM$maxDate)
 summary(userRFM$score)
 
-save(userRFM_uniq, file="userRFM_full_uniq.RData")
+#save(userRFM_uniq, file="userRFM_full_uniq.RData")
 
 #### custid 수정 ->> 최종 고객 마스터 생성
->>>>>>> 74e95d7206317d897b1a2e59c1ae9c172870ff1a
+
 
 # summary(userRFM$grade)
 # #     A      B      C      D      E 
