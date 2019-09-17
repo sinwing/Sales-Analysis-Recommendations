@@ -12,4 +12,4 @@
 <b>2. 필요 excel 파일 다운로드 링크</b><br/>
 <a href="https://drive.google.com/open?id=1bi3xcosGW4gsYTaPKB1o6WLm-yW2n96P">고객 개인 정보로 인해 key 값 생성 후 분류 (userRFM_custid_key.csv)</a><br/>
 <a href="https://drive.google.com/open?id=1KS5CgSVJa1x-StGv_6cksaocQ8I1REER">제품 전체정보 melt (dummy_melt_prod.csv)</a><br/>
-<a href="https://drive.google.com/open?id=1Fu6GKnhfHhrAaoidkcrfPGp2eiS3kq07">제품 전체정보 melt (dummy_melt_prod.xlsc)</a><br/>
+<a href="https://drive.google.com/open?id=1Fu6GKnhfHhrAaoidkcrfPGp2eiS3kq07">제품 전체정보 melt (dummy_melt_prod.xlsx)</a><br/>
